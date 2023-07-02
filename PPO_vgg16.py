@@ -117,18 +117,6 @@ def create_cnn(observation_dimensions, num_actions):
     # observation_dimensions[1:] is used to pass the spatial dimensions (height, width, channels) to the VGG16 model
     vgg16_model = VGG16(input_shape=observation_dimensions[1:], weights='imagenet', include_top=False)
     
-    # # Get the layers up to the fourth block (i.e., first 14 layers)
-    # vgg16_layers = vgg16_model.layers[:14] 
-    
-    # # Make these layers non-trainable
-    # for layer in vgg16_layers:
-    #     layer.trainable = False
-    
-    # # Create a new model with these layers
-    # x = input_tensor
-    # for layer in vgg16_layers:  # skip the input layer
-    #     x = keras.layers.TimeDistributed(layer)(x)
-
     # We set the layers of VGG16 to be not trainable
     for layer in vgg16_model.layers:
         layer.trainable = False
