@@ -132,6 +132,11 @@ def create_cnn(observation_dimensions, num_actions):
     # Flatten the output of the TimeDistributed vgg16_4blocks model
     x = keras.layers.TimeDistributed(keras.layers.Flatten())(x)
 
+    # not add a Dense layer to compact the output dimension since, in seed paper, they don't have this step
+    # what is more, In the context of processing video frames for reinforcement learning, a common approach is to use Conv3D or a combination of TimeDistributed with Conv2D for spatial feature extraction and then an LSTM or GRU layer for temporal dynamics learning.
+    # A Dense layer is usually not used in between because it would flatten the spatial structure before the temporal dynamics are learned.
+    # Flatten and reshape for LSTM layer -- shape: (batchSize, flattened)
+    
     # LSTM layer
     x = LSTM(units=512, return_sequences=False)(x)
 
