@@ -125,9 +125,6 @@ def create_cnn(observation_dimensions, num_actions):
     
     for layer in vgg16_4blocks.layers:
         print("Layer name:", layer.name)
-        print("Layer configuration:")
-        print(layer.get_config())
-        print("\n")
 
     # We use the vgg16_4blocks model in a TimeDistributed manner
     x = keras.layers.TimeDistributed(vgg16_4blocks)(input_tensor)
