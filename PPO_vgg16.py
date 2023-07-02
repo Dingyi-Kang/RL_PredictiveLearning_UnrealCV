@@ -218,7 +218,7 @@ render = False
 #the frist agent is the tracker
 agentIndex = 0
 '''may continue training by making it ture'''
-load_checkpoint = False
+load_checkpoint = True
 #inpSize = 336
 inpSize = 224
 stack_size = 3
