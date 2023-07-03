@@ -12,11 +12,11 @@ import argparse, gym_unrealcv
 import os
 
 #the get_batches function is a generator function that splits the given dataset into smaller batches of a specific size.
-def get_batches(dataset, batch_size):
-    """Yield successive batches from the dataset."""
-    for i in range(0, len(dataset), batch_size):
-        #yield keyword is used in Python to define a generator function that can be paused and resumed, allowing it to generate a sequence of results over time, rather than computing them all at once and returning them in a list for instance. 
-        yield dataset[i:i + batch_size]
+# def get_batches(dataset, batch_size):
+#     """Yield successive batches from the dataset."""
+#     for i in range(0, len(dataset), batch_size):
+#         #yield keyword is used in Python to define a generator function that can be paused and resumed, allowing it to generate a sequence of results over time, rather than computing them all at once and returning them in a list for instance. 
+#         yield dataset[i:i + batch_size]
 
 #preprocess function converts it to grayscale, and make its value between -1 and 1 (normalization)
 def preprocess(observation):
@@ -205,7 +205,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 
 # Hyperparameters of the PPO algorithm
-steps_per_epoch = 200 #store memories of 200 steps
+steps_per_epoch = 80 #store memories of 200 steps
 epochs = 1000
 gamma = 0.9
 clip_ratio = 0.2
@@ -334,43 +334,43 @@ for epoch in range(epochs):
    
     #observation_buffer.shape -- (200, 4, 336, 336, 1)
     #this whole batch cannot be directly passed to ConvLayer since the first CNN layer will generate a tensor of (200, 32, 4, 336, 336) where 32 is num of filters
-    #hence we need use mini-batch
-    batch_size = 50
-    # Update the policy and implement early stopping using KL divergence
-    for _ in range(train_policy_iterations):
-        kl = 0    
-        for obs_batch, act_batch, logp_batch, adv_batch in zip(
-                                                                get_batches(observation_buffer, batch_size),
-                                                                get_batches(action_buffer, batch_size),
-                                                                get_batches(logprobability_buffer, batch_size),
-                                                                get_batches(advantage_buffer, batch_size)
-                                                              ):
-            kl += train_policy(obs_batch, act_batch, logp_batch, adv_batch)
-        if kl > 1.5 * target_kl:
-            # Early Stopping
-            break
-
-    # Update the value function
-    for _ in range(train_value_iterations):
-       for obs_batch, return_batch in zip(
-                                           get_batches(observation_buffer, batch_size),
-                                           get_batches(return_buffer, batch_size)
-                                         ):
-            train_value_function(obs_batch, return_batch)
-
-#comment out begins
+    #hence we may need use mini-batch
+    # batch_size = 50
     # # Update the policy and implement early stopping using KL divergence
     # for _ in range(train_policy_iterations):
-    #     kl = train_policy(
-    #         observation_buffer, action_buffer, logprobability_buffer, advantage_buffer
-    #     )
+    #     kl = 0    
+    #     for obs_batch, act_batch, logp_batch, adv_batch in zip(
+    #                                                             get_batches(observation_buffer, batch_size),
+    #                                                             get_batches(action_buffer, batch_size),
+    #                                                             get_batches(logprobability_buffer, batch_size),
+    #                                                             get_batches(advantage_buffer, batch_size)
+    #                                                           ):
+    #         kl += train_policy(obs_batch, act_batch, logp_batch, adv_batch)
     #     if kl > 1.5 * target_kl:
     #         # Early Stopping
     #         break
-    
+
     # # Update the value function
     # for _ in range(train_value_iterations):
-    #     train_value_function(observation_buffer, return_buffer)
+    #    for obs_batch, return_batch in zip(
+    #                                        get_batches(observation_buffer, batch_size),
+    #                                        get_batches(return_buffer, batch_size)
+    #                                      ):
+    #         train_value_function(obs_batch, return_batch)
+
+#comment out begins
+    # Update the policy and implement early stopping using KL divergence
+    for _ in range(train_policy_iterations):
+        kl = train_policy(
+            observation_buffer, action_buffer, logprobability_buffer, advantage_buffer
+        )
+        if kl > 1.5 * target_kl:
+            # Early Stopping
+            break
+    
+    # Update the value function
+    for _ in range(train_value_iterations):
+        train_value_function(observation_buffer, return_buffer)
 #comment out end
 
     # Print mean return and length for each epoch
