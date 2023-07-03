@@ -248,8 +248,8 @@ actor = create_cnn(observation_dimensions, num_actions)
 critic = create_cnn(observation_dimensions, 1)
 
 
-dir_path = 'tmpVgg2/checkpoints'
-f = open('PPO_records_vgg2.txt', 'a')
+dir_path = 'tmpVgg4BlocksSmallMem/checkpoints'
+f = open('PPO_records_vgg4BlocksSmallMem.txt', 'a')
 # Check if the directory exists
 if not os.path.exists(dir_path):
     # If the directory does not exist, create it
