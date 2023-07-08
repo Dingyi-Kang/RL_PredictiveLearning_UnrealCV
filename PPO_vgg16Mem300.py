@@ -219,9 +219,9 @@ def train_value_function(observation_buffer, return_buffer):
 
 
 # Hyperparameters of the PPO algorithm
-steps_per_epoch = 100 #store memories of 100 steps
-batch_size = 50
-epochs = 1000
+steps_per_epoch = 300 #store memories of 300 steps
+batch_size = 30
+epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
 policy_learning_rate = 1e-4
@@ -262,9 +262,9 @@ observation_input = keras.Input(shape=observation_dimensions, dtype=tf.float32)
 actor = create_cnn(observation_dimensions, num_actions)
 critic = create_cnn(observation_dimensions, 1)
 
-load_dir_path = 'tmpVggMem100/checkpoints'
-dir_path = 'tmpVggMem100v2/checkpoints'
-f = open('PPO_records_vggMem100.txt', 'a')
+load_dir_path = 'tmpVggSmallMem/checkpoints'
+dir_path = 'tmpVggMem360/checkpoints'
+f = open('PPO_records_vggMem360.txt', 'a')
 # Check if the directory exists
 if not os.path.exists(load_dir_path):
     # If the directory does not exist, create it
@@ -317,6 +317,7 @@ for epoch in range(epochs):
         # action[0] -- the action of first batch
         observations, rewards, done, _ = env.step(action[0].numpy())
         reward = rewards[agentIndex]
+        #print(reward) #--- reward is from -1 to 1
         episode_return += reward
         episode_length += 1
         
@@ -354,9 +355,9 @@ for epoch in range(epochs):
         logprobability_buffer,
     ) = buffer.get()
    
-    #observation_buffer.shape -- (200, 4, 336, 336, 1)
-    #this whole batch cannot be directly passed to ConvLayer since the first CNN layer will generate a tensor of (200, 32, 4, 336, 336) where 32 is num of filters
-    #hence we may need use mini-batch
+    #observation_buffer.shape -- (350, 3, 224, 224, 3)
+    #this whole batch cannot be directly passed to ConvLayer since the first CNN layer will generate a tensor of (350, 32, 4, 224, 224) where 32 is num of filters
+    #hence we need use mini-batch to collect returns from the mini batch of the stacked images in buffer
 
 #comment out begins
     # Update the policy and implement early stopping using KL divergence
