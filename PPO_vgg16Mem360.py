@@ -14,7 +14,7 @@ import os
 #the get_batches function is a generator function that splits the given dataset into smaller batches of a specific size.
 def get_batches(dataset, batch_size):
     """Yield successive batches from the dataset."""
-    for i in range(0, len(dataset), batch_size):
+    for i in range(0, dataset.shape[0], batch_size):
         #yield keyword is used in Python to define a generator function that can be paused and resumed, allowing it to generate a sequence of results over time, rather than computing them all at once and returning them in a list for instance. 
         yield dataset[i:i + batch_size]
 
@@ -164,7 +164,7 @@ def sample_action(observation):
 # Train the policy by maxizing the PPO-Clip objective
 @tf.function
 def train_policy(
-    observation_buffer, action_buffer, logprobability_buffer, advantage_buffer, batch_size
+    observation_buffer, action_buffer, logprobability_buffer, advantage_buffer
 ):
 
     with tf.GradientTape() as tape:  # Record operations for automatic differentiation.
@@ -220,7 +220,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 360 #store memories of 360 steps
-batch_size = 60
+batch_size = 30
 epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
@@ -317,7 +317,7 @@ for epoch in range(epochs):
         # action[0] -- the action of first batch
         observations, rewards, done, _ = env.step(action[0].numpy())
         reward = rewards[agentIndex]
-        print(reward) #--- reward is from -1 to 1
+        #print(reward) #--- reward is from -1 to 1
         episode_return += reward
         episode_length += 1
         
