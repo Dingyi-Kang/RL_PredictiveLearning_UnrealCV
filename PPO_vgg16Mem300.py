@@ -10,7 +10,7 @@ import scipy.signal
 import time
 import argparse, gym_unrealcv
 import os
-
+#300Mem
 #the get_batches function is a generator function that splits the given dataset into smaller batches of a specific size.
 def get_batches(dataset, batch_size):
     """Yield successive batches from the dataset."""
@@ -219,8 +219,8 @@ def train_value_function(observation_buffer, return_buffer):
 
 
 # Hyperparameters of the PPO algorithm
-steps_per_epoch = 300 #store memories of 300 steps
-batch_size = 30
+steps_per_epoch = 300 #store memories of 360 steps
+batch_size = 15
 epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
@@ -262,9 +262,9 @@ observation_input = keras.Input(shape=observation_dimensions, dtype=tf.float32)
 actor = create_cnn(observation_dimensions, num_actions)
 critic = create_cnn(observation_dimensions, 1)
 
-load_dir_path = 'tmpVggSmallMem/checkpoints'
-dir_path = 'tmpVggMem360/checkpoints'
-f = open('PPO_records_vggMem360.txt', 'a')
+load_dir_path = 'tmpVggMem300/checkpoints'
+dir_path = 'tmpVggMem300/checkpoints'
+f = open('PPO_records_vggMem300.txt', 'a')
 # Check if the directory exists
 if not os.path.exists(load_dir_path):
     # If the directory does not exist, create it

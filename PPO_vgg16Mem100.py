@@ -220,7 +220,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 100 #store memories of 100 steps
-batch_size = 50
+batch_size = 10
 epochs = 1000
 gamma = 0.9
 clip_ratio = 0.2
@@ -262,7 +262,7 @@ observation_input = keras.Input(shape=observation_dimensions, dtype=tf.float32)
 actor = create_cnn(observation_dimensions, num_actions)
 critic = create_cnn(observation_dimensions, 1)
 
-load_dir_path = 'tmpVggMem100/checkpoints'
+load_dir_path = 'tmpVggMem100v2/checkpoints'
 dir_path = 'tmpVggMem100v2/checkpoints'
 f = open('PPO_records_vggMem100.txt', 'a')
 # Check if the directory exists
