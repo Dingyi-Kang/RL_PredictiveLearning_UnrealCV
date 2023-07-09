@@ -10,7 +10,7 @@ import scipy.signal
 import time
 import argparse, gym_unrealcv
 import os
-#300Mem
+#300MemStack2
 #the get_batches function is a generator function that splits the given dataset into smaller batches of a specific size.
 def get_batches(dataset, batch_size):
     """Yield successive batches from the dataset."""
@@ -220,7 +220,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 300 #store memories of 360 steps
-batch_size = 20
+batch_size = 10
 epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
