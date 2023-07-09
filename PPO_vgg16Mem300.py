@@ -220,7 +220,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 300 #store memories of 360 steps
-batch_size = 50
+batch_size = 20
 epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
