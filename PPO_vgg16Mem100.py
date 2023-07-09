@@ -385,5 +385,6 @@ for epoch in range(epochs):
     print('...Saving Checkpoint...')
     actor.save_weights(actor_checkpoint_file)
     critic.save_weights(critic_checkpoint_file)
+    tf.keras.backend.clear_session()
 
 f.close()

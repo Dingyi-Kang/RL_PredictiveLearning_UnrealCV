@@ -220,7 +220,7 @@ def train_value_function(observation_buffer, return_buffer):
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 300 #store memories of 360 steps
-batch_size = 15
+batch_size = 50
 epochs = 10000
 gamma = 0.9
 clip_ratio = 0.2
@@ -386,5 +386,6 @@ for epoch in range(epochs):
     print('...Saving Checkpoint...')
     actor.save_weights(actor_checkpoint_file)
     critic.save_weights(critic_checkpoint_file)
+    tf.keras.backend.clear_session()
 
 f.close()
