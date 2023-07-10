@@ -189,7 +189,8 @@ def train_policy(
         )
     policy_grads = tape.gradient(policy_loss, actor.trainable_variables)
     policy_optimizer.apply_gradients(zip(policy_grads, actor.trainable_variables))
-
+    del tape
+    
     new_observation_outputs = []
     for obs_batch in get_batches(observation_buffer, batch_size):
         output_batch = actor(obs_batch)
@@ -216,7 +217,7 @@ def train_value_function(observation_buffer, return_buffer):
         value_loss = tf.reduce_mean((return_buffer - observation_outputs) ** 2)
     value_grads = tape.gradient(value_loss, critic.trainable_variables)
     value_optimizer.apply_gradients(zip(value_grads, critic.trainable_variables))
-
+    del tape
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 300 #store memories of 360 steps
