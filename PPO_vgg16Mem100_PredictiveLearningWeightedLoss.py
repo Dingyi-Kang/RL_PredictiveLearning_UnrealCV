@@ -130,12 +130,14 @@ class Buffer:
 def create_actor_critic_network(attention_dimensions, num_actions):
     input_tensor = keras.Input(shape=attention_dimensions)
     #Solved: added an extra middle layer to project the attention matrix into a larger dimension and then project to target dimension??
-    #TODO: 5.2 or, use weighted_loss which is (1, 49, 512) as input, and use a middle dense, and then flat, and then dense with output shape?
-    # Output layer
-    # 1DGloablAverafe -- (1, 512)
+    #Solved: 5.2 or, use weighted_loss which is (1, 49, 512) as input, and use a middle dense, and then compress, and then dense with output shape
+    x = Dense(256, activation='relu')(input_tensor) #(1, 49, 256) 
+
+    # 1DGloablAverafe -- (1, 256)
+    x = tf.keras.layers.GlobalAveragePooling1D()(x)
+
     # Note: projecting input into a smaller dimension may help compress the information (work like feature extraction).
     # In contrast, project input into a larger dimension can represent the data i a more expressive way but could incur overfitting
-    x = Dense(32, activation='relu')(input_tensor)
     x = Dense(num_actions, activation=None)(x)  ##note! we just need raw value; we don't need to softmax for actor at this. Critic will generate real values not percentage
 
     model = keras.models.Model(inputs=input_tensor, outputs=x)
@@ -230,7 +232,7 @@ def create_cnn_predicted_attention(observation_dimensions):
     frame_diff = tf.square(tf.subtract(curr_input_sequence, previous_input_sequence)) 
 
     # MARK: prediction loss weighted by frame diffeence (zero-order hold difference), errors will be weighted high for blocks with motion/change -- which is our focus -- what we want to predict
-    #TODO:2. output weighted_loss or lossGrid?? either. both weighted_loss might contain riches info while weighted_loss is concise and faciliate the training
+    # Solved:2. output weighted_loss or lossGrid?? either. both weighted_loss might contain riches info while weighted_loss is concise and faciliate the training
     weighted_loss = tf.multiply(frame_diff, pred_loss) 
 
     #tf.reduce_mean(weighted_loss): When not specify any axis, it computes the mean of all the elements in the weighted_loss tensor, regardless of its shape. The result will be a single scalar value.
@@ -238,10 +240,10 @@ def create_cnn_predicted_attention(observation_dimensions):
 
     #it will compute the mean across the third dimension
     #final lossGrid tensor will also have the shape (1, 49)
-    lossGrid = tf.nn.softmax(tf.reduce_mean(weighted_loss, 2), axis=1)
+    #lossGrid = tf.nn.softmax(tf.reduce_mean(weighted_loss, 2), axis=1)
     #MARK: 4. this loss calculated is kind of mismatch with those formula in paper
 
-    model = keras.models.Model(inputs=[input_tensor, input_hidden_state], outputs=[loss, lossGrid, next_hidden_state])
+    model = keras.models.Model(inputs=[input_tensor, input_hidden_state], outputs=[loss, weighted_loss, next_hidden_state])
 
     return model
 
@@ -363,16 +365,16 @@ num_actions = env.action_space[agentIndex].n
 
 observation_dimensions = (stack_size, inpSize, inpSize, channelNum)
 # to define a tuple with a single element, you need to add a trailing comma.
-attention_dimensions = (49,)
+attention_dimensions = (49,512)
 buffer = Buffer(observation_dimensions, steps_per_epoch)
 
 # Initialize the actor and the critic as keras models
 actor = create_actor_critic_network(attention_dimensions, num_actions)
 critic = create_actor_critic_network(attention_dimensions, 1)
 cnnAttentionPredictor = create_cnn_predicted_attention(observation_dimensions)
-load_dir_path = 'PredictiveLearningPPOModel_LossGrid/checkpoints'
-dir_path = 'PredictiveLearningPPOModel_LossGrid/checkpoints'
-f = open('PredictiveLearningPPOModel_LossGrid.txt', 'a')
+load_dir_path = 'PredictiveLearningPPOModel_WeightedLoss/checkpoints'
+dir_path = 'PredictiveLearningPPOModel_WeightedLoss/checkpoints'
+f = open('PredictiveLearningPPOModel_WeightedLoss.txt', 'a')
 # Check if the directory exists
 if not os.path.exists(load_dir_path):
     # If the directory does not exist, create it
