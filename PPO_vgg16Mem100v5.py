@@ -178,7 +178,12 @@ def train_policy(
 ):
 
     with tf.GradientTape() as tape:  # Record operations for automatic differentiation.
-        actor_logits = actor(features_buffer)
+        #actor_logits = actor(features_buffer)
+        actor_logits = []
+        for feature_batch in get_batches(features_buffer, batch_size):
+            actor_batch_logits = actor(feature_batch)
+            actor_logits.append(actor_batch_logits)
+        actor_logits = tf.concat(actor_logits, axis=0)
         
         ratio = tf.exp(
             logprobabilities(actor_logits, action_buffer)
@@ -196,7 +201,12 @@ def train_policy(
     policy_grads = tape.gradient(policy_loss, actor.trainable_variables)
     policy_optimizer.apply_gradients(zip(policy_grads, actor.trainable_variables))
 
-    new_actor_logits = actor(features_buffer)
+    #new_actor_logits = actor(features_buffer)
+    new_actor_logits = []
+    for feature_batch in get_batches(features_buffer, batch_size):
+        actor_batch_logits = actor(feature_batch)
+        new_actor_logits.append(actor_batch_logits)
+    new_actor_logits = tf.concat(new_actor_logits, axis=0)
 
     kl = tf.reduce_mean(
         logprobability_buffer
@@ -210,14 +220,20 @@ def train_policy(
 @tf.function
 def train_value_function(features_buffer, return_buffer):
     with tf.GradientTape() as tape:  # Record operations for automatic differentiation.
-        critic_logits = critic(features_buffer)
+        #critic_logits = critic(features_buffer)
+        critic_logits = []
+        for feature_batch in get_batches(features_buffer, batch_size):
+            critic_batch_logits = critic(feature_batch)
+            critic_logits.append(critic_batch_logits)
+        critic_logits = tf.concat(critic_logits, axis=0)
+
         value_loss = tf.reduce_mean((return_buffer - critic_logits) ** 2)
     value_grads = tape.gradient(value_loss, critic.trainable_variables)
     value_optimizer.apply_gradients(zip(value_grads, critic.trainable_variables))
 
 # Hyperparameters of the PPO algorithm
 steps_per_epoch = 100 #store memories of 100 steps
-#batch_size = 1
+batch_size = 25
 epochs = 30000
 gamma = 0.9
 clip_ratio = 0.2
